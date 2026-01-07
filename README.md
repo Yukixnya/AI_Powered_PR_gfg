@@ -1,5 +1,7 @@
 # gfg_pr
 automated PR maker for GFG
 
-
-hello GFG testing
+git checkout -b xyz
+git add .
+git commit -m "test:sample"
+git push origin xyz
