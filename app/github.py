@@ -1,4 +1,4 @@
-from app.github_api import fetch_pr_files
+from app.github_api import fetch_pr_files , update_pr_body
 from app.diff_parser import diff_summary
 from app.classifier import change_classifier
 from app.pr_writer import pr_generator
@@ -37,6 +37,8 @@ def github_webhook(payload: dict):
         pr_type=classification,
         issue=None
     )
+
+    update_pr_body(owner, repo, pr_number, pr_content)
 
     return {
         "status": "generated",
