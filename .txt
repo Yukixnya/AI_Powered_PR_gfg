@@ -1,0 +1,13 @@
+auto-pr-writer/
+│
+├── app/
+│   ├── main.py              # FastAPI entry
+│   ├── github.py            # GitHub webhook handling
+│   ├── diff_parser.py       # Parse & summarize git diff
+│   ├── classifier.py        # Classify PR type
+│   ├── pr_writer.py         # LLM prompt + generation
+│   └── schemas.py           # Pydantic models
+│
+├── .env
+├── requirements.txt
+└── README.md

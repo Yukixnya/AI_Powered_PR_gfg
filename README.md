@@ -1,2 +1,2 @@
-# AI_Powered_PR_gfg
-PR maker for GFG
+# gfg_pr
+automated PR maker for GFG
