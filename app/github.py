@@ -1,16 +1,13 @@
-from app.github_api import fetch_pr_files , update_pr_body
-from app.diff_parser import diff_summary
-from app.classifier import change_classifier
-from app.pr_writer import pr_generator
+from app.github_api import fetch_pr_files, update_pr_body
+from pr.api import generate_pr_markdown
 
 
 def github_webhook(payload: dict):
 
-    # ✅ Handle GitHub ping
+    # GitHub ping event
     if payload.get("zen"):
         return {"status": "pong"}
 
-    # ✅ Only act on PR opened
     if payload.get("action") != "opened":
         return {"status": "ignored"}
 
@@ -28,19 +25,31 @@ def github_webhook(payload: dict):
         if f.get("patch"):
             diffs += f["patch"] + "\n"
 
-    summary = diff_summary(diffs)
-    classification = change_classifier(files, summary)
+    template = """
+## Summary
+{{change}}
 
-    pr_content = pr_generator(
+## Context
+{{context}}
+
+## Impact
+{{impact}}
+
+## Checklist
+{{checklist}}
+"""
+
+    pr_content = generate_pr_markdown(
+        diff_text=diffs,
         files=files,
-        diff_summary=summary,
-        pr_type=classification,
-        issue=None
+        payload=payload,
+        template=template
     )
 
     update_pr_body(owner, repo, pr_number, pr_content)
 
     return {
-        "status": "generated",
-        "pr_content": pr_content
+        "status": "updated",
+        "message": "PR description updated successfully"
     }
+

@@ -1,77 +1,60 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
+from pr.core.diff_parser import GitDiffParser
+from pr.core.diff_semantics import DiffSemanticAnalyzer
+from pr.core.change_classifier import ChangeClassifier
+from pr.core.impact_analyzer import ImpactAnalyzer
+from pr.core.issue_parser import IssueParser
 
-from core.diff_parser import GitDiffParser
-from core.diff_semantics import DiffSemanticAnalyzer
-from core.issue_parser import IssueParser
-from core.change_classifier import ChangeClassifier
-from core.impact_analyzer import ImpactAnalyzer
+from pr.explanation.change_writer import ChangeWriter
+from pr.explanation.context_writer import ContextWriter
+from pr.explanation.impact_writer import ImpactWriter
 
-from explanation.context_writer import ContextWriter
-from explanation.change_writer import ChangeWriter
-from explanation.impact_writer import ImpactWriter
-
-from formatter.checklist_builder import ChecklistBuilder
-from formatter.markdown_builder import MarkdownBuilder
+from pr.formatter.checklist_builder import ChecklistBuilder
+from pr.formatter.markdown_builder import MarkdownBuilder
 
 
-app = FastAPI(title="God-Level PR Writer")
+def generate_pr_markdown(
+    *,
+    diff_text: str,
+    files: list[str],
+    payload: dict,
+    template: str,
+) -> str:
+    """
+    High-level PR generation pipeline (OO-based).
+    """
 
+    # --- Parse diff ---
+    parser = GitDiffParser()
+    file_diffs = parser.parse(diff_text)
 
-class PRRequest(BaseModel):
-    git_diff: str
-    issue: str
+    # --- Semantic analysis ---
+    semantic_analyzer = DiffSemanticAnalyzer()
+    semantics = semantic_analyzer.analyze(file_diffs)
 
+    # --- Classification ---
+    classifier = ChangeClassifier()
+    classification = classifier.classify(semantics, files)
 
-class PRResponse(BaseModel):
-    pull_request: str
+    # --- Impact analysis ---
+    impact_analyzer = ImpactAnalyzer()
+    impact_stats = impact_analyzer.scope(semantics)
+    risk = impact_analyzer.risk_level(impact_stats)
 
+    # --- Issue extraction ---
+    issue = IssueParser().parse(payload)
 
-@app.post("/generate-pr", response_model=PRResponse)
-def generate_pr(req: PRRequest):
-    # -----------------------------
-    # Core analysis
-    # -----------------------------
-    parsed_diff = GitDiffParser(req.git_diff).parse()
-    semantics = DiffSemanticAnalyzer(parsed_diff).analyze()
-    issue = IssueParser(req.issue).parse()
+    # --- Writing sections ---
+    change_section = ChangeWriter().write(semantics)
+    context_section = ContextWriter().write(semantics, issue)
+    impact_section = ImpactWriter().write(impact_stats)
 
-    classifier = ChangeClassifier(issue, semantics)
-    classification = classifier.classify()
+    checklist = ChecklistBuilder().build(classification, risk)
 
-    impact = ImpactAnalyzer(
-        stats=next(iter(parsed_diff.values()))
-        if parsed_diff else None
-    )
-
-    # -----------------------------
-    # Explanation layers
-    # -----------------------------
-    context = ContextWriter(issue, classification).write()
-    changes = ChangeWriter(semantics).write()
-    impact_text = ImpactWriter(impact, classification).write()
-    checklist = ChecklistBuilder(classification).build()
-
-    # -----------------------------
-    # Title
-    # -----------------------------
-    title_prefix = classification.change_type.title()
-    first_file = next(iter(parsed_diff.keys()), "core logic")
-    title = f"{title_prefix}: update {first_file}"
-
-    # -----------------------------
-    # Markdown assembly
-    # -----------------------------
-    template = open("templates/base.md", encoding="utf-8").read()
-
+    # --- Final markdown ---
     builder = MarkdownBuilder(template)
-
-    pr_markdown = builder.build({
-        "title": title,
-        "context": context,
-        "changes": changes,
-        "impact": impact_text,
+    return builder.build({
+        "change": change_section,
+        "context": context_section,
+        "impact": impact_section,
         "checklist": checklist,
     })
-
-    return PRResponse(pull_request=pr_markdown)

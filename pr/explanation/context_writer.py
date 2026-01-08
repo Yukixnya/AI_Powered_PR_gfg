@@ -1,5 +1,5 @@
-from core.issue_parser import IssueIntent
-from core.change_classifier import ChangeClassification
+from pr.core.issue_parser import IssueIntent
+from pr.core.change_classifier import ChangeClassification
 
 
 class ContextWriter:

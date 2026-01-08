@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Dict, List, Set
 
-from core.diff_parser import FileDiff, DiffHunk
+from pr.core.diff_parser import FileDiff, DiffHunk
 
 
 # -----------------------------

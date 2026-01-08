@@ -1,4 +1,4 @@
-from core.change_classifier import ChangeClassification
+from pr.core.change_classifier import ChangeClassification
 
 
 class ChecklistBuilder:

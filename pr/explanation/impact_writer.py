@@ -1,5 +1,5 @@
-from core.impact_analyzer import ImpactAnalyzer
-from core.change_classifier import ChangeClassification
+from pr.core.impact_analyzer import ImpactAnalyzer
+from pr.core.change_classifier import ChangeClassification
 
 
 class ImpactWriter:

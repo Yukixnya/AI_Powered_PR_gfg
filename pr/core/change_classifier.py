@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from core.diff_semantics import FileSemantics
-from core.issue_parser import IssueIntent
+from pr.core.diff_semantics import FileSemantics
+from pr.core.issue_parser import IssueIntent
 
 
 @dataclass

@@ -1,5 +1,5 @@
 from typing import Dict
-from core.diff_semantics import FileSemantics
+from pr.core.diff_semantics import FileSemantics
 
 
 class ChangeWriter:
