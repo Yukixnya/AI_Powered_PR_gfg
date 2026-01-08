@@ -42,10 +42,10 @@ def generate_pr_markdown(
     impact_analyzer = ImpactAnalyzer(semantics)
     impact_stats = impact_analyzer.scope()
     risk = impact_analyzer.risk_level()
-    
+
     # --- Writing sections ---
     change_section = ChangeWriter(semantics).write()
-    context_section = ContextWriter(issue_intent, classification).write()
+    context_section = ContextWriter(issue, classification).write()
     impact_section = ImpactWriter(impact_stats).write()
 
     checklist = ChecklistBuilder(classification, risk).build()
