@@ -24,31 +24,32 @@ def generate_pr_markdown(
     """
 
     # --- Parse diff ---
-    parser = GitDiffParser()
-    file_diffs = parser.parse(diff_text)
+    parser = GitDiffParser(diff_text)
+    file_diffs = parser.parse()
 
     # --- Semantic analysis ---
-    semantic_analyzer = DiffSemanticAnalyzer()
-    semantics = semantic_analyzer.analyze(file_diffs)
+    semantic_analyzer = DiffSemanticAnalyzer(file_diffs)
+    semantics = semantic_analyzer.analyze()
 
     # --- Classification ---
     classifier = ChangeClassifier()
     classification = classifier.classify(semantics, files)
 
     # --- Impact analysis ---
-    impact_analyzer = ImpactAnalyzer()
-    impact_stats = impact_analyzer.scope(semantics)
-    risk = impact_analyzer.risk_level(impact_stats)
+    impact_analyzer = ImpactAnalyzer(semantics)
+    impact_stats = impact_analyzer.scope()
+    risk = impact_analyzer.risk_level()
 
     # --- Issue extraction ---
-    issue = IssueParser().parse(payload)
+    issue = IssueParser(payload).parse()
 
     # --- Writing sections ---
-    change_section = ChangeWriter().write(semantics)
-    context_section = ContextWriter().write(semantics, issue)
-    impact_section = ImpactWriter().write(impact_stats)
+    change_section = ChangeWriter(semantics).write()
+    context_section = ContextWriter(semantics, issue).write()
+    impact_section = ImpactWriter(impact_stats).write()
 
-    checklist = ChecklistBuilder().build(classification, risk)
+    checklist = ChecklistBuilder(classification, risk).build()
+
 
     # --- Final markdown ---
     builder = MarkdownBuilder(template)
