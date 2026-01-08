@@ -36,7 +36,7 @@ def generate_pr_markdown(
 
     # --- Classification ---
     classifier = ChangeClassifier(issue, semantics)
-    classification = classifier.classify(files)
+    classification = classifier.classify()
 
     # --- Impact analysis ---
     impact_analyzer = ImpactAnalyzer(semantics)
