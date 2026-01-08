@@ -20,7 +20,7 @@ def generate_pr_markdown(
     template: str,
 ) -> str:
     """
-    High-level PR generation pipeline (OO-based).
+    High-level PR generation pipeline.
     """
 
     # --- Parse diff ---
@@ -31,17 +31,17 @@ def generate_pr_markdown(
     semantic_analyzer = DiffSemanticAnalyzer(file_diffs)
     semantics = semantic_analyzer.analyze()
 
+    # --- Issue extraction ---
+    issue = IssueParser(payload).parse()
+
     # --- Classification ---
-    classifier = ChangeClassifier()
-    classification = classifier.classify(semantics, files)
+    classifier = ChangeClassifier(issue, semantics)
+    classification = classifier.classify(files)
 
     # --- Impact analysis ---
     impact_analyzer = ImpactAnalyzer(semantics)
     impact_stats = impact_analyzer.scope()
     risk = impact_analyzer.risk_level()
-
-    # --- Issue extraction ---
-    issue = IssueParser(payload).parse()
 
     # --- Writing sections ---
     change_section = ChangeWriter(semantics).write()
@@ -49,7 +49,6 @@ def generate_pr_markdown(
     impact_section = ImpactWriter(impact_stats).write()
 
     checklist = ChecklistBuilder(classification, risk).build()
-
 
     # --- Final markdown ---
     builder = MarkdownBuilder(template)
