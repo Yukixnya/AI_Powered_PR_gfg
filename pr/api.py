@@ -46,9 +46,9 @@ def generate_pr_markdown(
     # --- Writing sections ---
     change_section = ChangeWriter(semantics).write()
     context_section = ContextWriter(issue, classification).write()
-    impact_section = ImpactWriter(impact_stats).write()
+    impact_section = ImpactWriter(impact_stats, classification).write()
 
-    checklist = ChecklistBuilder(classification, risk).build()
+    checklist = ChecklistBuilder(classification).build()
 
     # --- Final markdown ---
     builder = MarkdownBuilder(template)
