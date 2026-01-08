@@ -32,7 +32,7 @@ def generate_pr_markdown(
     semantics = semantic_analyzer.analyze()
 
     # --- Issue extraction ---
-    issue = IssueParser(payload.get("pull_request", {}).get("body", "")).parse()
+    issue = IssueParser(payload.get("pull_request", {}).get("body") or "").parse()
 
     # --- Classification ---
     classifier = ChangeClassifier(issue, semantics)
