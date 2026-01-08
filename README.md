@@ -15,3 +15,5 @@ made with love and fucking brain im fucking tired now baby
 god plz make it work
 
 devil help me
+
+father plz
