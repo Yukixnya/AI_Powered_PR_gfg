@@ -7,4 +7,4 @@ git commit -m "test:sample"
 git push origin xyz
 
 
-made with love and fucking brain im fucking tired now
+made with love and efforts
