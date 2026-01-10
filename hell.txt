@@ -1,3 +1,5 @@
+Dont do anything to zxtra_app it contains testing templates
+
 auto-pr-writer/
 │
 ├── app/
