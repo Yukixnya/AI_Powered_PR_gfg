@@ -1,21 +1,15 @@
 from fastapi import FastAPI, Request
-from dotenv import load_dotenv
-from app.github import github_webhook
-
-load_dotenv()
+from app.pr_control import pr_controller
 
 app = FastAPI(title="Auto PR Writer")
 
 
-@app.post("/webhook/github")
-async def github_webhook_handler(request: Request):
-    payload = await request.json()
-    return github_webhook(payload)
+@app.post("/pr-gen")
+def pr_gen_handler(payload: dict):
+    return pr_controller(payload)
 
-
-# Optional: avoid 405 noise in logs
-@app.get("/webhook/github")
-def webhook_health():
+@app.get("/pr-gen")
+def pr_gen_health():
     return {"status": "ok"}
 
 
