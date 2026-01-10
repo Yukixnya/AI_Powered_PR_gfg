@@ -1,7 +1,9 @@
 from pr.core.diff_parser import GitDiffParser
 from pr.core.diff_semantics import DiffSemanticAnalyzer
 from pr.core.change_classifier import ChangeClassifier
-from pr.core.impact_analyzer import ImpactAnalyzer
+
+from pr.core.impact_analyzer import ImpactAnalyzer, ImpactStats
+
 from pr.core.issue_parser import IssueParser
 
 from pr.explanation.change_writer import ChangeWriter
@@ -39,9 +41,21 @@ def generate_pr_markdown(
     classification = classifier.classify()
 
     # --- Impact analysis ---
-    impact_analyzer = ImpactAnalyzer(semantics)
-    impact_stats = impact_analyzer.scope()
-    risk = impact_analyzer.risk_level()
+
+    file_diffs = parser.parse()   # Dict[str, FileDiff]
+
+    total_additions = sum(fd.additions for fd in file_diffs.values())
+    total_deletions = sum(fd.deletions for fd in file_diffs.values())
+
+    impact_stats = ImpactStats(
+        files_changed=len(file_diffs),
+        additions=total_additions,
+        deletions=total_deletions,
+    )
+
+    impact_analyzer = ImpactAnalyzer(impact_stats)
+
+    # risk = impact_analyzer.risk_level()
 
     # --- Writing sections ---
     change_section = ChangeWriter(semantics).write()
